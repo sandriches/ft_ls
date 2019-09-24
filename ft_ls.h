@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/23 10:31:53 by rcorke         #+#    #+#                */
-/*   Updated: 2019/09/24 12:12:24 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/09/24 14:19:26 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,8 @@ typedef struct	s_dir_list {
 	struct s_dir_list		*next;
 	int						use;
 }				t_dir_list;
+
+void	print_dir_list(t_dir_list *list);
+void	print_info(DIR *ptr, struct dirent *d_s);
 
 #endif
