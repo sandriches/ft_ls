@@ -6,7 +6,7 @@
 #    By: rcorke <rcorke@student.codam.nl>             +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/09/23 10:33:18 by rcorke         #+#    #+#                 #
-#    Updated: 2019/09/24 13:18:50 by rcorke        ########   odam.nl          #
+#    Updated: 2019/09/24 14:59:36 by rcorke        ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ NAME=ft_ls
 
 FLAGS= -Wall -Werror -Wextra
 
-SRCS= ft_ls.c print_functions.c
+SRCS= ft_ls.c print_functions.c utility_functions.c
 
 OBJECTS:=${SRCS:c=o}
 

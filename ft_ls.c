@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/12 11:38:58 by rcorke         #+#    #+#                */
-/*   Updated: 2019/09/24 14:22:24 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/09/24 16:35:10 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,23 +162,39 @@ static struct dirent	*copy_ds(struct dirent *d_s)
 	return (new);
 }
 
+static void	new_list(struct dirent *d_s, t_dir_list **list)
+{
+	*list = (t_dir_list *)malloc(sizeof(t_dir_list));
+	(*list)->d_s = copy_ds(d_s);
+	if (!*list)
+	{
+		free(list);
+		return ;
+	}
+	(*list)->use = 0;
+	(*list)->next = NULL;
+	return ;
+}
+
+static void	add_to_front_of_list(struct dirent *d_s, t_dir_list **list)
+{
+	t_dir_list	*new;
+
+	if (!list || !*list)
+		return (new_list(d_s, list));
+	new = (t_dir_list *)malloc(sizeof(t_dir_list));
+	new->d_s = copy_ds(d_s);
+	new->next = *list;
+	new->use = 0;
+	*list = new;
+}
+
 static void	add_to_list(struct dirent *d_s, t_dir_list **list)
 {
 	t_dir_list	*iter;
 
 	if (!list || !*list)
-	{
-		*list = (t_dir_list *)malloc(sizeof(t_dir_list));
-		(*list)->d_s = copy_ds(d_s);
-		if (!*list)
-		{
-			free(list);
-			return ;
-		}
-		(*list)->use = 0;
-		(*list)->next = NULL;
-		return ;
-	}
+		new_list(d_s, list);
 	iter = *list;
 	while (iter && iter->next)
 		iter = iter->next;
@@ -225,12 +241,15 @@ static void		add_to_path(char **path, t_dir_list **list)
 	pop_first_list(list);
 }
 
-int print_all_in_dirent(DIR *ptr, char **path, t_dir_list **list)
+int		print_all_in_dirent(DIR *ptr, char **path, t_dir_list **list)
 {
+	static int j;
 	int i = 0;
 	int list_size = 0;
 	struct dirent *d_s;
 
+	if (j == 100)
+		exit(1);
 	ft_printf("%s:\n", *path);
 	d_s = readdir(ptr);
 	while (i < 2)
@@ -238,45 +257,48 @@ int print_all_in_dirent(DIR *ptr, char **path, t_dir_list **list)
 		d_s = readdir(ptr);
 		i++;
 	}
+	if (!d_s)
+	{
+		ft_printf("\n");
+		return (1);
+	}
 	while (d_s)
 	{
 		print_info(ptr, d_s);
 		if (d_s->d_type == 4)
 		{
-			add_to_list(d_s, list);
+			add_to_front_of_list(d_s, list);
 			list_size++;
 		}
 		d_s = readdir(ptr);
 		if (d_s)
 			ft_printf("\t");
-		else
-			ft_printf("\n");
 	}
+	ft_printf("\n\n");
+	j++;
 	if (list_size == 0)
-	{
-		// closedir(ptr);
-		return (1);
-	}
+		return (0);
 	while (list_size > 0)
 	{
 		add_to_path(path, list);
 		closedir(ptr);
 		ptr = opendir(*path);
-		if (print_all_in_dirent(ptr, path, list) == 0)
-			return (1);
+		// ft_printf("PTR: %p\n", ptr);
+		if (print_all_in_dirent(ptr, path, list) == 1)
+			return (0);
 		pop_path(path);
 		list_size--;
 	}
-	// closedir(ptr);
-	return (0);
+	return (1);
 }
 
 
-
-static void	print_all_in_dirent_no_path(DIR *ptr, char **path, t_dir_list **list)
+static int	print_all_in_dirent_no_path(DIR *ptr, char **path, t_dir_list **list)
 {
 	struct dirent	*d_s;
+	int size;
 
+	size = 0;
 	d_s = readdir(ptr);
 	while (d_s)
 	{
@@ -285,16 +307,20 @@ static void	print_all_in_dirent_no_path(DIR *ptr, char **path, t_dir_list **list
 			d_s = readdir(ptr);
 			d_s = readdir(ptr);
 			if (!d_s)
-				return ;
+				return (0);
 		}
 		print_info(ptr, d_s);
 		if (d_s->d_type == 4)
+		{
 			add_to_list(d_s, list);
+			size++;
+		}
 		d_s = readdir(ptr);
 		if (d_s)
 			ft_printf("\t");
 	}
 	ft_printf("\n");
+	return (size);
 }
 
 int		main(void)
@@ -308,15 +334,26 @@ int		main(void)
 
 	t_dir_list		*list;
 	char			*path;
+	int				first_size;
 
 	path = ft_strdup(".");
 	list = NULL;
-	ptr = opendir(".");
-	print_all_in_dirent_no_path(ptr, &path, &list);
+	ptr = opendir(path);
+	first_size = print_all_in_dirent_no_path(ptr, &path, &list);
 	closedir(ptr);
 	add_to_path(&path, &list);
 	ptr = opendir(path);
-	print_all_in_dirent(ptr, &path, &list);
+	while (first_size >= 0)
+	{
+		print_all_in_dirent(ptr, &path, &list);
+		pop_path(&path);
+		if (first_size == 0)
+			break ;
+		add_to_path(&path, &list);
+		ptr = opendir(path);
+		ft_printf("FIRST SIZE: %d\n", first_size);
+		first_size--;
+	}
 	// dir_copy = find_folders(list_of_dirs);
 	// if (get_dir_path_length(dir_path) > 0)
 	// {
