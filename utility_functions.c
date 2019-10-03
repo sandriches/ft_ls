@@ -6,25 +6,45 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/09/24 15:00:16 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/03 17:12:36 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-int			dir_list_size(t_dir_list *list)
+void			print_head_folder(t_ls *ls)
 {
-	t_dir_list	*iter;
-	int			i;
-
-	if (!list)
-		return (0);
-	iter = list;
-	i = 0;
-	while (iter)
+	if (ls && ls->head_folder == 1)
 	{
-		iter = iter->next;
-		i++;
+		if (ls->G == 1)
+			ft_printf(BOLD_BLUE);
+		ft_printf("%s:\n", ls->folder);
+		ft_printf(COLOR_RESET);
 	}
-	return (i);
+}
+
+struct stat		*get_stat(char *path)
+{
+	struct stat		*ptr;
+	struct stat		new;
+
+	stat(path, &new);
+	*ptr = new;
+	return (ptr);
+}
+
+struct dirent	*copy_ds(struct dirent *d_s)
+{
+	struct dirent *new;
+
+	if (!d_s)
+		return (NULL);
+	new = (struct dirent *)malloc(sizeof(struct dirent));
+	new->d_ino = d_s->d_ino;
+	ft_strcpy(new->d_name, d_s->d_name);
+	new->d_namlen = d_s->d_namlen;
+	new->d_reclen = d_s->d_reclen;
+	new->d_seekoff = d_s->d_seekoff;
+	new->d_type = d_s->d_type;
+	return (new);
 }
