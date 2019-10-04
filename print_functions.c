@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/24 13:17:16 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 18:21:14 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/04 17:06:01 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,10 @@ static void	print_color_code(t_ls *ls, t_dir_list *current)
 			ft_printf(YELLOW);
 		else if (current->type == DT_SOCK)
 			ft_printf(GREEN);
+		else if (current->permissions && current->permissions[2] == 'x')
+			ft_printf(RED);
+		else if (current->permissions && current->permissions[2] == 's')
+			ft_printf("\033[41m\033[30m");
 	}
 }
 
@@ -83,9 +87,8 @@ static void	print_info(t_ls *ls, t_dir_list *current)
 	struct stat st;
 	char		buf[current->len_name];
 
-	if (current->type != 10)
-		stat(current->path, &st);
-	else
+	stat(current->path, &st);
+	if (current->type == 10)
 		lstat(current->path, &st);
 	if (ls->l == 1)
 	{
@@ -120,4 +123,5 @@ void		print_dir_list(t_ls *ls, t_dir_list *list)
 		NL;
 		iter = iter->next;
 	}
+	NL;
 }

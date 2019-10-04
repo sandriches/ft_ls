@@ -6,16 +6,18 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 16:49:30 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 18:48:17 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/04 17:06:18 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-static struct dirent	*get_ds(DIR *ptr)
+struct dirent	*get_ds_init_values(DIR *ptr, int *num, t_dir_list **current)
 {
 	struct dirent *d_s;
 
+	*num = 0;
+	*current = NULL;
 	d_s = readdir(ptr);
 	d_s = readdir(ptr);
 	d_s = readdir(ptr);
@@ -28,22 +30,18 @@ static int	print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 	int				size;
 	t_dir_list		*current;
 
-	size = 0;
-	current = NULL;
-	ds = get_ds(dptr);
+	ds = get_ds_init_values(dptr, &size, &current);
 	if (!ds)
 		return (0);
 	print_head_folder(ls);
 	while (ds)
 	{
 		add_to_dir_list(ds, &current, ls->folder, 'e');
-		// if (ds->d_type == 4)
-			// size += add_to_dir_list(ds, list, ls->folder, 'e');
+		if (ds->d_type == 4 && ((ls->a == 0 && ds->d_name[0] != '.') || ls->a == 1))
+			size += add_to_dir_list(ds, list, ls->folder, 'e');
 		ds = readdir(dptr);
 	}
-	sort_list(ls, &current);
-	print_dir_list(ls, current);
-	free_current(current);
+	sort_print_free(ls, &current, &dptr);
 	ft_printf("\n");
 	return (size);
 }
@@ -60,9 +58,12 @@ static void	ft_ls(t_ls *ls, char *path)
 		no_folder_error(ls, path);
 	ls->folder = path;
 	folders_in_first_directory = print_first_dirent(&list, dptr, ls);
-	closedir(dptr);
 	while (ls->R == 1 && folders_in_first_directory > 0)
 	{
+		dptr = opendir(list->path);
+		if (!dptr)
+			break ;
+		print_dirent(&list, dptr, ls);
 		folders_in_first_directory--;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/23 10:31:53 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 18:46:27 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/04 16:39:03 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,8 @@ typedef struct	s_ls {
 }				t_ls;
 
 void	temp_print_dir_list(t_dir_list *list);
-
+struct dirent	*get_ds_init_values(DIR *ptr, int *num, t_dir_list **list);
+int		print_dirent(t_dir_list **list, DIR *dptr, t_ls *ls);
 
 // void	print_info(t_ls *ls, struct dirent *d_s);
 void	print_dir_list(t_ls *ls, t_dir_list *list);
@@ -73,6 +74,7 @@ void			print_head_folder(t_ls *ls);
 /*List functions */
 void			pop_first_list(t_dir_list **list);
 char			*join_paths_with_slash(char *old_path, char *new_path);
+void			sort_print_free(t_ls *ls, t_dir_list **current, DIR **dptr);
 
 /*list functions 2 */
 void	sort_list(t_ls *ls, t_dir_list **list);

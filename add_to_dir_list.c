@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 15:52:12 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 17:15:04 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/04 17:03:13 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,8 @@ char *path, char start_or_end)
 	new = (t_dir_list *)malloc(sizeof(t_dir_list));
 	new->path = join_paths_with_slash(path, d_s->d_name);
 	new->name = ft_strdup(d_s->d_name);
+	// if (d_s->d_type == 4)
+		// ft_printf("ADDING %s TO LIST, PATH: %s\n", new->name, new->path);
 	new->type = d_s->d_type;
 	new->next = NULL;
 	stat(new->path, &st);
@@ -104,7 +106,10 @@ char *path, char start_or_end)
 	if (!*current)
 		*current = new;
 	else if (start_or_end == 's')
+	{
 		new->next = *current;
+		*current = new;
+	}
 	else if (start_or_end == 'e')
 		add_to_end(current, &new);
 	return (1);

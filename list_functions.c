@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:33:20 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 16:34:41 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/04 16:39:24 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,4 +43,15 @@ void			pop_first_list(t_dir_list **list)
 		free(to_free);
 		to_free = NULL;
 	}
+}
+
+void			sort_print_free(t_ls *ls, t_dir_list **current, DIR **dptr)
+{
+	if (*current)
+	{
+		sort_list(ls, current);
+		print_dir_list(ls, *current);
+		free_current(*current);
+	}
+	closedir(*dptr);
 }
