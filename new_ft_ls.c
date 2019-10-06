@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 16:49:30 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/04 17:06:18 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/06 17:37:06 by sandRICH      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,9 @@ static void	ft_ls(t_ls *ls, char *path)
 		no_folder_error(ls, path);
 	ls->folder = path;
 	folders_in_first_directory = print_first_dirent(&list, dptr, ls);
-	while (ls->R == 1 && folders_in_first_directory > 0)
+	while (ls->R == 1 && folders_in_first_directory > 0 && list)
 	{
+		int list_size = dir_list_size(list);
 		dptr = opendir(list->path);
 		if (!dptr)
 			break ;

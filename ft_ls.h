@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/23 10:31:53 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/04 16:39:03 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/06 16:14:00 by sandRICH      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ void			print_head_folder(t_ls *ls);
 void			pop_first_list(t_dir_list **list);
 char			*join_paths_with_slash(char *old_path, char *new_path);
 void			sort_print_free(t_ls *ls, t_dir_list **current, DIR **dptr);
+void			join_lists(t_dir_list **to_add, t_dir_list **main_list);
 
 /*list functions 2 */
 void	sort_list(t_ls *ls, t_dir_list **list);
@@ -84,9 +85,10 @@ int		dir_list_size(t_dir_list *list);
 int			add_to_dir_list(struct dirent *d_s, t_dir_list **current, \
 char *path, char start_or_end);
 
-void	free_current(t_dir_list *list);
+void	free_current(t_dir_list **list);
 void	free_everything(t_ls *ls, t_dir_list **list);
-void	free_singular_node(t_dir_list *list);
+void	free_singular_node(t_dir_list **list);
+void	free_str(char **str);
 
 int		set_flags(int argc, char **argv, t_ls *ls);
 void	no_folder_error(t_ls *ls, char *folder);

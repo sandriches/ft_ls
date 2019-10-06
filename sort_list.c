@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:43:18 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 18:46:58 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/06 15:58:21 by sandRICH      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ static t_dir_list	*remove_first_hidden(t_dir_list **list)
 	{
 		to_free = iter;
 		iter = iter->next;
-		free_singular_node(to_free);
+		free_singular_node(&to_free);
 	}
 	return (iter);
 }
@@ -128,9 +128,14 @@ static void	remove_hidden(t_dir_list **list)
 	t_dir_list	*to_free;
 	t_dir_list	*head;
 
-	iter = remove_first_hidden(list);
-	if (!iter)
+	*list = remove_first_hidden(list);
+	if (!*list)
+	{
+		// ft_printf("remove hidden, only hidden files found\n");
+		*list = NULL;
 		return ;
+	}
+	iter = *list;
 	head = iter;
 	to_free = iter->next;
 	if (!to_free)
@@ -140,7 +145,7 @@ static void	remove_hidden(t_dir_list **list)
 		if (to_free->name[0] == '.')
 		{
 			iter->next = to_free->next;
-			free_singular_node(to_free);
+			free_singular_node(&to_free);
 		}
 		iter = iter->next;
 		to_free = iter->next;
@@ -202,13 +207,20 @@ void		sort_list(t_ls *ls, t_dir_list **list)
 {
 	if (!list || !*list || !(*list)->next)
 	{
-		ft_printf("NO LIST IN SORT LIST\n");
+		// ft_printf("NO LIST IN SORT LIST\n");
 		return ;
 	}
 	// reverse_list(list);
 	sort_by_ascii(list);
 	if (ls->a == 0)
+	{
 		remove_hidden(list);
+		if (dir_list_size(*list) == 0)
+		{
+			*list = NULL;
+			return ;
+		}
+	}
 	if (ls->sort == 't')
 		sort_by(list, 't');
 	else if (ls->sort == 'u')

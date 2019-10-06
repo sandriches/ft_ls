@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 15:52:12 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/04 17:03:13 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/06 15:32:33 by sandRICH      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,16 @@ static void	copy_stat_to_new(struct stat *st, t_dir_list **new)
 	struct passwd	*pw;
 	struct group	*gp;
 
+	if (!st)
+		return ;
 	pw = getpwuid(st->st_uid);
 	gp = getgrgid(st->st_gid);
+	if (!pw || !gp)
+	{
+		(*new)->u_name = NULL;
+		(*new)->g_name = NULL;
+		return ;
+	}
 	(*new)->uid = st->st_uid;
 	(*new)->gid = st->st_gid;
 	(*new)->u_name = ft_strdup(pw->pw_name);
@@ -94,15 +102,13 @@ char *path, char start_or_end)
 	new = (t_dir_list *)malloc(sizeof(t_dir_list));
 	new->path = join_paths_with_slash(path, d_s->d_name);
 	new->name = ft_strdup(d_s->d_name);
-	// if (d_s->d_type == 4)
-		// ft_printf("ADDING %s TO LIST, PATH: %s\n", new->name, new->path);
+	new->len_name = ft_strlen(d_s->d_name);
 	new->type = d_s->d_type;
 	new->next = NULL;
 	stat(new->path, &st);
 	copy_stat_to_new(&st, &new);
 	new->permissions = ft_strdup("---------");
 	copy_permissions_to_new(&st, &new->permissions);
-	new->len_name = ft_strlen(d_s->d_name);
 	if (!*current)
 		*current = new;
 	else if (start_or_end == 's')

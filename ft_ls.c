@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/12 11:38:58 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/04 12:50:29 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/06 14:49:16 by sandRICH      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,7 @@ int		main(int argc, char **argv)
 	if (argc > 1)
 	{
 		start_files = set_flags(argc, argv, ls);
-		ft_printf("START FILES: %d\tARGC: %d\n", start_files, argc);
+		// ft_printf("START FILES: %d\tARGC: %d\n", start_files, argc);
 		if (start_files + 1 < argc)
 			ls->head_folder = 1;
 		else if (start_files == argc)
