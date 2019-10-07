@@ -6,19 +6,18 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/26 16:45:56 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 17:00:10 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/07 11:42:17 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-void		no_folder_error(t_ls *ls, char *str)
+void		no_folder_error(t_ls *ls, t_dir_list *list)
 {
-	ft_putstr_fd("ft_ls: ", 2);
-	ft_putstr_fd(str, 2);
-	ft_putstr_fd(": No such file or directory\n", 2);
-	free_everything(ls, NULL);
-	exit(1);
+	ft_putstr_fd(list->path, 2);
+	ft_putstr_fd(":\nft_ls: ", 2);
+	perror(list->name);
+	ft_putstr_fd("\n", 2);
 }
 
 static void	flags_error(t_ls *ls, char c)

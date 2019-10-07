@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/04 12:13:11 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/06 17:37:53 by sandRICH      ########   odam.nl         */
+/*   Updated: 2019/10/07 17:41:42 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,36 @@ static void	print_path(t_ls *ls, char *path)
 	ft_printf(COLOR_RESET);
 }
 
+static void	confirm_list(t_ls *ls, char **path, t_dir_list **list)
+{
+	*path = NULL;
+	if (*list)
+	{
+		*path = ft_strdup((*list)->path);
+		pop_first_list(list);
+		print_path(ls, *path);
+	}
+}
+
+static void	print_loop(t_dir_list **list, DIR *dptr, t_ls *ls, int list_size)
+{
+	while (list_size > 0 && *list)
+	{
+		dptr = opendir((*list)->path);
+		if (dptr)
+		{
+			if (print_dirent(list, dptr, ls) == 1)
+				continue ;
+		}
+		else
+		{
+			no_folder_error(ls, *list);
+			pop_first_list(list);
+		}
+		list_size--;
+	}
+}
+
 int			print_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 {
 	struct dirent	*ds;
@@ -29,41 +59,20 @@ int			print_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 	char			*path;
 
 	ds = get_ds_init_values(dptr, &list_size, &current);
-	path = NULL;
-	if (*list)
-	{
-		path = ft_strdup((*list)->path);
-		pop_first_list(list);
-		print_path(ls, path);
-	}
+	confirm_list(ls, &path, list);
 	if (!ds)
-	{
-		if (path)
-			free_str(&path);
-		// ft_printf("LIST PATH BEFORE RETURN: %s\n", (*list)->path);
-		return (0);
-	}
+		return (free_str(&path));
 	while (ds)
 	{
 		add_to_dir_list(ds, &current, path, 'e');
-		if (ds->d_type == 4 && ((ls->a == 0 && ds->d_name[0] != '.') || ls->a == 1))
+		if (ds->d_type == 4 && ((ls->a == 0 && \
+		ds->d_name[0] != '.') || ls->a == 1))
 			list_size += add_to_dir_list(ds, &new_list, path, 'e');
 		ds = readdir(dptr);
 	}
 	free_str(&path);
 	sort_print_free(ls, &current, &dptr);
 	join_lists(&new_list, list);
-	// ft_printf("LIST SIZE: %d\n", list_size);
-	while (list_size > 0 && *list)
-	{
-		dptr = opendir((*list)->path);
-		if (print_dirent(list, dptr, ls) == 1)
-			continue ;
-		// else
-		// 	pop_first_list(list);		
-		// if (*list)
-		// 	pop_first_list(list);
-		list_size--;
-	}
+	print_loop(list, dptr, ls, list_size);
 	return (1);
 }

@@ -6,11 +6,26 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/24 13:17:16 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/04 17:06:01 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/07 18:22:55 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
+
+void		print_total_blocks(t_dir_list *list)
+{
+	t_dir_list		*iter;
+	unsigned long	blocks;
+
+	blocks = 0;
+	iter = list;
+	while (iter)
+	{
+		blocks += iter->blocks;
+		iter = iter->next;
+	}
+	ft_printf("total: %lu\n", blocks);
+}
 
 void		temp_print_dir_list(t_dir_list *list)
 {
@@ -56,7 +71,7 @@ static void	print_owner_info(t_ls *ls, t_dir_list *current)
 	if (ls->n == 1)
 		ft_printf("%d\t%d\t", current->uid, current->gid);
 	else
-		ft_printf("%s\t%s\t", current->u_name, current->g_name);
+		ft_printf("%10s %10s", current->u_name, current->g_name);
 }
 
 static void	print_color_code(t_ls *ls, t_dir_list *current)
@@ -92,9 +107,10 @@ static void	print_info(t_ls *ls, t_dir_list *current)
 		lstat(current->path, &st);
 	if (ls->l == 1)
 	{
-		ft_printf("%c%s\t%d\t", get_d_type(current), current->permissions, current->n_links);
+		ft_printf("%c%s %d ", get_d_type(current), current->permissions, \
+		current->n_links);
 		print_owner_info(ls, current);
-		ft_printf("%8d\tTIME: %d\t", current->size, current->m_time, current->name);
+		ft_printf("%15lu %s ", current->size, current->m_time, current->name);
 	}
 	print_color_code(ls, current);
 	ft_printf("%s%s", current->name, FULL_COLOR_RESET);
@@ -103,7 +119,6 @@ static void	print_info(t_ls *ls, t_dir_list *current)
 		readlink(current->path, buf, current->len_name);
 		ft_printf(" -> %s", buf);
 	}
-
 	if (ls->p == 1 && current->type == 4)
 		ft_printf("/");
 }
@@ -117,6 +132,8 @@ void		print_dir_list(t_ls *ls, t_dir_list *list)
 	iter = list;
 	if (ls->head_folder == 1)
 		ft_printf("%s\n", iter->name);
+	if (ls->l == 1)
+		print_total_blocks(iter);
 	while (iter)
 	{
 		print_info(ls, iter);

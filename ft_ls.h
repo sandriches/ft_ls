@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/23 10:31:53 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/06 16:14:00 by sandRICH      ########   odam.nl         */
+/*   Updated: 2019/10/07 17:41:10 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <dirent.h>
+#include <time.h>
 #include "ft_printf.h"
 # define HERE write(1, "here\n", 5)
 # define NL write(1, "\n", 1)
@@ -38,8 +39,9 @@ typedef struct	s_dir_list {
 	char					*g_name;
 	int						n_links;
 	time_t					a_time;
-	time_t					m_time;
-	int						size;
+	char					*m_time;
+	unsigned long			size;
+	unsigned long			blocks;
 	char					*name;
 	char					len_name;
 	struct s_dir_list		*next;
@@ -88,10 +90,10 @@ char *path, char start_or_end);
 void	free_current(t_dir_list **list);
 void	free_everything(t_ls *ls, t_dir_list **list);
 void	free_singular_node(t_dir_list **list);
-void	free_str(char **str);
+int		free_str(char **str);
 
 int		set_flags(int argc, char **argv, t_ls *ls);
-void	no_folder_error(t_ls *ls, char *folder);
+void	no_folder_error(t_ls *ls, t_dir_list *list);
 
 #endif
 

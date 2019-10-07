@@ -1,0 +1,5 @@
+./ft_ls -RlG /  100.54s user 39.71s system 68% cpu 3:24.88 total
+ls -G -RlG /  8.39s user 37.76s system 39% cpu 1:56.00 total
+
+
+./ft_ls -RlG /  95.12s user 32.51s system 83% cpu 2:33.24 total

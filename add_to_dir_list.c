@@ -6,11 +6,50 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 15:52:12 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/06 15:32:33 by sandRICH      ########   odam.nl         */
+/*   Updated: 2019/10/07 18:41:45 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
+
+static int	move_i_forward(char *str, int i, int e_or_not)
+{
+	if (e_or_not % 2 == 1)
+	{
+		while (str[i] && str[i] == ' ')
+			i++;
+	}
+	else
+	{
+		while (str[i] && str[i] != ' ')
+			i++;
+	}
+	return (i);
+}
+
+static char	*remove_excess(char *str)
+{
+	char	*rtn;
+	int		i;
+	int		start;
+	int		e_or_not;
+
+	if (!str)
+		return (NULL);
+	i = 0;
+	e_or_not = 1;
+	while (e_or_not <= 8)
+	{
+		i = move_i_forward(str, i, e_or_not);
+		if (e_or_not == 3)
+			start = i;
+		e_or_not++;
+	}
+	if (i > 3)
+		i -= 3;
+	rtn = ft_strnew(i - start + 1);
+	return (ft_strncpy(rtn, &str[start], i - start));
+}
 
 static void	copy_stat_to_new(struct stat *st, t_dir_list **new)
 {
@@ -25,30 +64,30 @@ static void	copy_stat_to_new(struct stat *st, t_dir_list **new)
 	{
 		(*new)->u_name = NULL;
 		(*new)->g_name = NULL;
+		(*new)->m_time = NULL;
 		return ;
 	}
 	(*new)->uid = st->st_uid;
 	(*new)->gid = st->st_gid;
+	(*new)->blocks = st->st_blocks;
 	(*new)->u_name = ft_strdup(pw->pw_name);
 	(*new)->g_name = ft_strdup(gp->gr_name);
 	(*new)->n_links = st->st_nlink;
-	(*new)->a_time = st->st_atimespec.tv_sec;
-	(*new)->m_time = st->st_mtimespec.tv_sec;
+	(*new)->m_time = remove_excess(ctime(&(st->st_atimespec.tv_sec)));
+	(*new)->a_time = st->st_mtimespec.tv_sec;
 	(*new)->size = st->st_size;
 }
 
 static void	check_sticky_bits(char **str, struct stat *st)
 {
-	// if (st->st_mode & S_ISGID)			//set group id on execution (2... - ---------x) - group ID on execute bit 2000
-		// add_to_end_of_str(&rtn, 'x');
-	if (st->st_mode & S_ISVTX)			//save swapped text even after use (1... ---------t) - sticky bit is set 1000 -> takes priority when both S_ISVTZX and S_ISGID are being used
+	if (st->st_mode & S_ISVTX)
 	{
 		if ((*str)[8] == 'x')
 			(*str)[8] = 't';
 		else
 			(*str)[8] = 'T';
 	}
-	if (st->st_mode & S_ISUID)			//set user id on execution (4... ---s------) - user ID on execute bit 4000
+	if (st->st_mode & S_ISUID)
 	{
 		if ((*str)[2] == 'x')
 			(*str)[2] = 's';
@@ -91,6 +130,15 @@ static void	add_to_end(t_dir_list **list, t_dir_list **new)
 	(*new)->next = NULL;
 }
 
+static void	add_to_new_node(t_dir_list **new, char *path, struct dirent *ds)
+{
+	(*new)->path = join_paths_with_slash(path, ds->d_name);
+	(*new)->name = ft_strdup(ds->d_name);
+	(*new)->len_name = ft_strlen(ds->d_name);
+	(*new)->type = ds->d_type;
+	(*new)->next = NULL;
+}
+
 int			add_to_dir_list(struct dirent *d_s, t_dir_list **current, \
 char *path, char start_or_end)
 {
@@ -99,13 +147,12 @@ char *path, char start_or_end)
 
 	if (!d_s)
 		return (0);
-	new = (t_dir_list *)malloc(sizeof(t_dir_list));
-	new->path = join_paths_with_slash(path, d_s->d_name);
-	new->name = ft_strdup(d_s->d_name);
-	new->len_name = ft_strlen(d_s->d_name);
-	new->type = d_s->d_type;
-	new->next = NULL;
-	stat(new->path, &st);
+	new = (t_dir_list *)ft_memalloc(sizeof(t_dir_list));
+	add_to_new_node(&new, path, d_s);
+	if (d_s->d_type != 10)
+		stat(new->path, &st);
+	else
+		lstat(new->path, &st);
 	copy_stat_to_new(&st, &new);
 	new->permissions = ft_strdup("---------");
 	copy_permissions_to_new(&st, &new->permissions);

@@ -6,13 +6,13 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:43:18 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/06 15:58:21 by sandRICH      ########   odam.nl         */
+/*   Updated: 2019/10/07 17:47:24 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-int			dir_list_size(t_dir_list *list)
+int					dir_list_size(t_dir_list *list)
 {
 	t_dir_list	*iter;
 	int			i;
@@ -29,7 +29,7 @@ int			dir_list_size(t_dir_list *list)
 	return (i + 1);
 }
 
-static void	swap_first(t_dir_list **list)
+static void			swap_first(t_dir_list **list)
 {
 	t_dir_list	*iter;
 	t_dir_list	*next;
@@ -43,7 +43,7 @@ static void	swap_first(t_dir_list **list)
 	*list = next;
 }
 
-static void	swap(t_dir_list **prev, t_dir_list **list)
+static void			swap(t_dir_list **prev, t_dir_list **list)
 {
 	t_dir_list	*iter;
 	t_dir_list	*next;
@@ -58,7 +58,7 @@ static void	swap(t_dir_list **prev, t_dir_list **list)
 	(*prev)->next = *list;
 }
 
-static int	compare_iter(t_dir_list *iter, t_dir_list *next, char type)
+static int			compare_iter(t_dir_list *iter, t_dir_list *next, char type)
 {
 	if (type == 't')
 	{
@@ -78,7 +78,7 @@ static int	compare_iter(t_dir_list *iter, t_dir_list *next, char type)
 	return (0);
 }
 
-static void	sort_by(t_dir_list **list, char type)
+static void			sort_by(t_dir_list **list, char type)
 {
 	t_dir_list	*iter;
 	t_dir_list	*next;
@@ -119,10 +119,12 @@ static t_dir_list	*remove_first_hidden(t_dir_list **list)
 		iter = iter->next;
 		free_singular_node(&to_free);
 	}
+	if (!iter)
+		return (NULL);
 	return (iter);
 }
 
-static void	remove_hidden(t_dir_list **list)
+static void			remove_hidden(t_dir_list **list)
 {
 	t_dir_list	*iter;
 	t_dir_list	*to_free;
@@ -130,11 +132,7 @@ static void	remove_hidden(t_dir_list **list)
 
 	*list = remove_first_hidden(list);
 	if (!*list)
-	{
-		// ft_printf("remove hidden, only hidden files found\n");
-		*list = NULL;
 		return ;
-	}
 	iter = *list;
 	head = iter;
 	to_free = iter->next;
@@ -153,7 +151,7 @@ static void	remove_hidden(t_dir_list **list)
 	*list = head;
 }
 
-void		reverse_list(t_dir_list **list)
+void				reverse_list(t_dir_list **list)
 {
 	t_dir_list	*prev;
 	t_dir_list	*current;
@@ -174,7 +172,7 @@ void		reverse_list(t_dir_list **list)
 	*list = prev;
 }
 
-static void	sort_by_ascii(t_dir_list **list)
+static void			sort_by_ascii(t_dir_list **list)
 {
 	t_dir_list	*prev;
 	t_dir_list	*iter;
@@ -202,15 +200,10 @@ static void	sort_by_ascii(t_dir_list **list)
 	}
 }
 
-
-void		sort_list(t_ls *ls, t_dir_list **list)
+void				sort_list(t_ls *ls, t_dir_list **list)
 {
 	if (!list || !*list || !(*list)->next)
-	{
-		// ft_printf("NO LIST IN SORT LIST\n");
 		return ;
-	}
-	// reverse_list(list);
 	sort_by_ascii(list);
 	if (ls->a == 0)
 	{

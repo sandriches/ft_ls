@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 16:49:30 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/06 17:37:06 by sandRICH      ########   odam.nl         */
+/*   Updated: 2019/10/07 18:22:27 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,15 @@ struct dirent	*get_ds_init_values(DIR *ptr, int *num, t_dir_list **current)
 
 	*num = 0;
 	*current = NULL;
+	if (!ptr)
+		return (NULL);
 	d_s = readdir(ptr);
 	d_s = readdir(ptr);
 	d_s = readdir(ptr);
 	return (d_s);
 }
 
-static int	print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
+static int		print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 {
 	struct dirent	*ds;
 	int				size;
@@ -37,7 +39,8 @@ static int	print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 	while (ds)
 	{
 		add_to_dir_list(ds, &current, ls->folder, 'e');
-		if (ds->d_type == 4 && ((ls->a == 0 && ds->d_name[0] != '.') || ls->a == 1))
+		if (ds->d_type == 4 && ((ls->a == 0 && ds->d_name[0] != \
+		'.') || ls->a == 1))
 			size += add_to_dir_list(ds, list, ls->folder, 'e');
 		ds = readdir(dptr);
 	}
@@ -46,7 +49,7 @@ static int	print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 	return (size);
 }
 
-static void	ft_ls(t_ls *ls, char *path)
+static void		ft_ls(t_ls *ls, char *path)
 {
 	t_dir_list	*list;
 	DIR			*dptr;
@@ -55,26 +58,31 @@ static void	ft_ls(t_ls *ls, char *path)
 	list = NULL;
 	dptr = opendir(path);
 	if (!dptr)
-		no_folder_error(ls, path);
+		return (perror(path));
 	ls->folder = path;
 	folders_in_first_directory = print_first_dirent(&list, dptr, ls);
 	while (ls->R == 1 && folders_in_first_directory > 0 && list)
 	{
-		int list_size = dir_list_size(list);
 		dptr = opendir(list->path);
-		if (!dptr)
-			break ;
-		print_dirent(&list, dptr, ls);
-		folders_in_first_directory--;
+		if (dptr)
+		{
+			print_dirent(&list, dptr, ls);
+			folders_in_first_directory--;
+		}
+		else
+		{
+			no_folder_error(ls, list);
+			pop_first_list(&list);
+		}
 	}
 }
 
-int			main(int argc, char **argv)
+int				main(int argc, char **argv)
 {
 	int		start_file;
 	t_ls	*ls;
 
-	ls = (t_ls *)malloc(sizeof(t_ls));
+	ls = (t_ls *)ft_memalloc(sizeof(t_ls));
 	if (!ls)
 		return (1);
 	ls->head_folder = 0;
@@ -95,6 +103,5 @@ int			main(int argc, char **argv)
 	else
 		ft_ls(ls, ".");
 	free_everything(ls, NULL);
-	// while (1);
 	return (0);
 }
