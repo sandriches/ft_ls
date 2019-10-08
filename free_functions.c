@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/26 16:28:45 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 17:40:50 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/08 11:44:43 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,8 @@ void	free_singular_node(t_dir_list **to_free)
 			free_str(&(*to_free)->u_name);
 		if ((*to_free)->g_name)
 			free_str(&(*to_free)->g_name);
-		if ((*to_free)->m_time)
-			free_str(&(*to_free)->m_time);
-		if ((*to_free)->a_time)
-			free_str(&(*to_free)->m_time);
+		if ((*to_free)->m_time_str)
+			free_str(&(*to_free)->m_time_str);
 		free(*to_free);
 		*to_free = NULL;
 	}

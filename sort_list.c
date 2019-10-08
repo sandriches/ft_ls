@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:43:18 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 17:47:24 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/08 16:59:25 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,8 @@ static void			remove_hidden(t_dir_list **list)
 			free_singular_node(&to_free);
 		}
 		iter = iter->next;
-		to_free = iter->next;
+		if (to_free)
+			to_free = iter->next;
 	}
 	*list = head;
 }
@@ -204,7 +205,6 @@ void				sort_list(t_ls *ls, t_dir_list **list)
 {
 	if (!list || !*list || !(*list)->next)
 		return ;
-	sort_by_ascii(list);
 	if (ls->a == 0)
 	{
 		remove_hidden(list);
@@ -214,12 +214,9 @@ void				sort_list(t_ls *ls, t_dir_list **list)
 			return ;
 		}
 	}
-	if (ls->sort == 't')
-		sort_by(list, 't');
-	else if (ls->sort == 'u')
-		sort_by(list, 'u');
-	else if (ls->sort == 'S')
-		sort_by(list, 'S');
 	if (ls->r == 1)
+	{
+		// HERE;
 		reverse_list(list);
+	}
 }

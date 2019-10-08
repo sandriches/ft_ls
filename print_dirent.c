@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/04 12:13:11 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 17:41:42 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/08 18:09:40 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,12 @@ int			print_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 		return (free_str(&path));
 	while (ds)
 	{
-		add_to_dir_list(ds, &current, path, 'e');
+		add_to_dir_list(ds, &current, ls, path);
 		if (ds->d_type == 4 && ((ls->a == 0 && \
-		ds->d_name[0] != '.') || ls->a == 1))
-			list_size += add_to_dir_list(ds, &new_list, path, 'e');
+		ds->d_name[0] != '.') || ls->a == 1) && \
+		ft_strequ(ds->d_name, ".") != 1 && \
+		ft_strequ(ds->d_name, "..") != 1)
+			list_size += add_to_dir_list(ds, &new_list, ls, path);
 		ds = readdir(dptr);
 	}
 	free_str(&path);

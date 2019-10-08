@@ -6,11 +6,12 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/23 10:31:53 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 17:41:10 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/08 11:29:40 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_LS_H
+# define FT_LS_H
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -20,14 +21,12 @@
 #include <grp.h>
 #include <dirent.h>
 #include <time.h>
+#include <limits.h>
 #include "ft_printf.h"
 # define HERE write(1, "here\n", 5)
 # define NL write(1, "\n", 1)
 # define TAB write(1, "\t", 1)
 # define FULL_COLOR_RESET "\033[0;0m"
-
-// Red text and blue background
-//     puts("\x1b[31m\x1b[44mHello, World");
 
 typedef struct	s_dir_list {
 	char					*path;
@@ -39,7 +38,8 @@ typedef struct	s_dir_list {
 	char					*g_name;
 	int						n_links;
 	time_t					a_time;
-	char					*m_time;
+	time_t					m_time;
+	char					*m_time_str;
 	unsigned long			size;
 	unsigned long			blocks;
 	char					*name;
@@ -48,14 +48,14 @@ typedef struct	s_dir_list {
 }				t_dir_list;
 
 typedef struct	s_ls {
-	unsigned char	l;		//list
-	unsigned char	R;		//recursive
-	unsigned char	a;		//hidden
-	unsigned char	r;		//rev sort
-	unsigned char	sort;	//sort -t[mod time]		-u[access time]		-S[size]
-	unsigned char	n;
-	unsigned char	p;
-	unsigned char	G;
+	unsigned char	l;			//list
+	unsigned char	R;			//recursive
+	unsigned char	a;			//hidden
+	unsigned char	r;			//rev sort
+	unsigned char	sort;		//sort -t[mod time]		-u[access time]		-S[size]
+	unsigned char	n;			//uid & gid instead of u_name and g_name
+	unsigned char	p;			// '/' after directories
+	unsigned char	G;			//colors
 	unsigned char	head_folder;
 	char			*folder;
 }				t_ls;
@@ -84,8 +84,7 @@ void	sort_list(t_ls *ls, t_dir_list **list);
 int		dir_list_size(t_dir_list *list);
 
 /*add_to_dir_list.c */
-int			add_to_dir_list(struct dirent *d_s, t_dir_list **current, \
-char *path, char start_or_end);
+int			add_to_dir_list(struct dirent *d_s, t_dir_list **current, t_ls *ls, char *path);
 
 void	free_current(t_dir_list **list);
 void	free_everything(t_ls *ls, t_dir_list **list);

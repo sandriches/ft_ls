@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/26 16:45:56 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 11:42:17 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/08 13:12:43 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ static void	check_for_flags(t_ls *ls, char *str)
 			ls->a = 1;
 		else if (str[x] == 'r')
 			ls->r = 1;
-		else if (str[x] == 't' || str[x] == 'u' || str[x] == 's' || \
+		else if (str[x] == 't' || str[x] == 'u' || str[x] == 'S' || \
 		str[x] == 'n')
 			check_for_flags_cont(ls, str[x]);
 		else if (str[x] == 'p')

@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 16:49:30 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 18:22:27 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/08 18:10:00 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ struct dirent	*get_ds_init_values(DIR *ptr, int *num, t_dir_list **current)
 	*current = NULL;
 	if (!ptr)
 		return (NULL);
-	d_s = readdir(ptr);
-	d_s = readdir(ptr);
 	d_s = readdir(ptr);
 	return (d_s);
 }
@@ -38,10 +36,11 @@ static int		print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 	print_head_folder(ls);
 	while (ds)
 	{
-		add_to_dir_list(ds, &current, ls->folder, 'e');
+		add_to_dir_list(ds, &current, ls, ls->folder);
 		if (ds->d_type == 4 && ((ls->a == 0 && ds->d_name[0] != \
-		'.') || ls->a == 1))
-			size += add_to_dir_list(ds, list, ls->folder, 'e');
+		'.') || ls->a == 1) && ft_strequ(ds->d_name, ".") != 1 \
+		&& ft_strequ(ds->d_name, "..") != 1)
+			size += add_to_dir_list(ds, list, ls, ls->folder);
 		ds = readdir(dptr);
 	}
 	sort_print_free(ls, &current, &dptr);

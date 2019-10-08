@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/24 13:17:16 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 18:22:55 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/08 17:49:35 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,10 +107,10 @@ static void	print_info(t_ls *ls, t_dir_list *current)
 		lstat(current->path, &st);
 	if (ls->l == 1)
 	{
-		ft_printf("%c%s %d ", get_d_type(current), current->permissions, \
+		ft_printf("%c%s %3d ", get_d_type(current), current->permissions, \
 		current->n_links);
 		print_owner_info(ls, current);
-		ft_printf("%15lu %s ", current->size, current->m_time, current->name);
+		ft_printf("%15lu %s ", current->size, current->m_time_str, current->name);
 	}
 	print_color_code(ls, current);
 	ft_printf("%s%s", current->name, FULL_COLOR_RESET);
