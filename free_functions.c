@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/26 16:28:45 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/08 11:44:43 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/10 15:39:36 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	free_everything(t_ls *ls, t_dir_list **list)
 
 void	free_singular_node(t_dir_list **to_free)
 {
-	if (to_free && *to_free)
+	if (*to_free)
 	{
 		if ((*to_free)->path)
 			free_str(&(*to_free)->path);

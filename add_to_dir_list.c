@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 15:52:12 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/08 18:40:06 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/10 18:03:05 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,67 @@ static char	*remove_excess(char *str)
 	return (ft_strncpy(rtn, &str[start], i - start));
 }
 
-static void	copy_stat_to_new(struct stat *st, t_dir_list **new)
+static int	is_more_than_year_old(char *str)
+{
+	int 	x;
+	int 	len;
+	char	*year;
+
+	x = ft_strlen(str) - 2;
+	len = x + 1;
+	while (ft_isdigit(str[x]))
+		x--;
+	year = ft_strsub(str, x, len - x);
+	len = ft_atoi(year);
+	free(year);
+	if (len > 1970)
+		return (1);
+	return (0);
+}
+
+static char	*get_year_str(char *str)
+{
+	int		x;
+	int		len;
+	char	*year;
+	char	*tmpstr;
+	char	*rtn_str;
+
+	len = ft_strlen(str) - 1;
+	x = len - 2;
+	while (ft_isdigit(str[x]))
+		x--;
+	year = ft_strsub(str, x, len - x);
+	x--;
+	while (ft_isdigit(str[x]) || str[x] == ':')
+		x--;
+	x--;
+	len = x;
+	tmpstr = ft_strsub(str, 4, len - 2);
+	rtn_str = ft_strjoin(tmpstr, year);
+	free(tmpstr);
+	free(year);
+	return (rtn_str);
+}
+
+static char	*get_rel_time(struct stat *st)
+{
+	time_t		time_val;
+	time_t		difference;
+	char		*rtn_str;
+	char		*time_str;
+
+	time_val = time(&time_val);
+	difference = (time_t)(difftime(time_val, st->st_mtimespec.tv_sec));
+	time_str = ctime(&difference);
+	if (is_more_than_year_old(time_str) == 0)
+		rtn_str = remove_excess(ctime(&(st->st_mtimespec.tv_sec)));
+	else
+		rtn_str = get_year_str(ctime(&st->st_mtimespec.tv_sec));
+	return (rtn_str);
+}
+
+void		copy_stat_to_new(struct stat *st, t_dir_list **new)
 {
 	struct passwd	*pw;
 	struct group	*gp;
@@ -60,20 +120,19 @@ static void	copy_stat_to_new(struct stat *st, t_dir_list **new)
 		return ;
 	pw = getpwuid(st->st_uid);
 	gp = getgrgid(st->st_gid);
-	if (!pw || !gp)
-	{
-		(*new)->u_name = NULL;
-		(*new)->g_name = NULL;
-		(*new)->m_time_str = NULL;
-		return ;
-	}
+	if (pw)
+		(*new)->u_name = ft_strdup(pw->pw_name);
+	else
+		(*new)->u_name = ft_strdup(ft_itoa(st->st_uid));
+	if (!gp)
+		(*new)->g_name = ft_strdup(ft_itoa(st->st_gid));
+	else
+		(*new)->g_name = ft_strdup(gp->gr_name);
+	(*new)->m_time_str = get_rel_time(st);
 	(*new)->uid = st->st_uid;
 	(*new)->gid = st->st_gid;
 	(*new)->blocks = st->st_blocks;
-	(*new)->u_name = ft_strdup(pw->pw_name);
-	(*new)->g_name = ft_strdup(gp->gr_name);
 	(*new)->n_links = st->st_nlink;
-	(*new)->m_time_str = remove_excess(ctime(&(st->st_mtimespec.tv_sec)));
 	(*new)->m_time = st->st_mtimespec.tv_sec;
 	(*new)->a_time = st->st_atimespec.tv_sec;
 	(*new)->size = st->st_size;
@@ -97,7 +156,7 @@ static void	check_sticky_bits(char **str, struct stat *st)
 	}
 }
 
-static void	copy_permissions_to_new(struct stat *st, char **str)
+void		copy_permissions_to_new(struct stat *st, char **str)
 {
 	if (st->st_mode & S_IRUSR)
 		(*str)[0] = 'r';
@@ -140,28 +199,55 @@ static void	add_to_new_node(t_dir_list **new, char *path, struct dirent *ds)
 	(*new)->next = NULL;
 }
 
-static int	compare_types(char sort, t_dir_list *new, t_dir_list *iter)
+static int	compare_types_rev(char sort, t_dir_list *new, t_dir_list *iter)
 {
 	if (sort == 0)
 	{
-		if (ft_biggest_ascii_str(new->name, iter->name) == 2)
+		if (ft_biggest_ascii_str(new->name, iter->name) == 1)
 			return (1);
 	}
 	else if (sort == 't')
 	{
-		if (new->m_time > iter->m_time)
+		if (new->m_time < iter->m_time)
 			return (1);
 	}
 	else if (sort == 'u')
 	{
-		if (new->a_time > iter->a_time)
+		if (new->a_time < iter->a_time)
 			return (1);
 	}
 	else if (sort == 'S')
-	{
-		if (new->size > iter->size)
+		if (new->size < iter->size)
 			return (1);
+	return (0);
+}
+
+static int	compare_types(char sort, t_dir_list *new, t_dir_list *iter, \
+t_ls *ls)
+{
+	if (ls->r == 0)
+	{
+		if (sort == 0)
+		{
+			if (ft_biggest_ascii_str(new->name, iter->name) == 2)
+				return (1);
+		}
+		else if (sort == 't')
+		{
+			if (new->m_time > iter->m_time)
+				return (1);
+		}
+		else if (sort == 'u')
+		{
+			if (new->a_time > iter->a_time)
+				return (1);
+		}
+		else if (sort == 'S')
+			if (new->size > iter->size)
+				return (1);
 	}
+	else if (ls->r == 1)
+		return (compare_types_rev(sort, new, iter));
 	return (0);
 }
 
@@ -171,7 +257,7 @@ static void	sort_with_three(t_dir_list **new, t_ls *ls, t_dir_list **list)
 	t_dir_list	*next;
 
 	iter = *list;
-	if (compare_types(ls->sort, *new, iter) == 1)
+	if (compare_types(ls->sort, *new, iter, ls) == 1)
 	{
 		(*new)->next = *list;
 		*list = *new;
@@ -181,7 +267,7 @@ static void	sort_with_three(t_dir_list **new, t_ls *ls, t_dir_list **list)
 	else
 	{
 		next = iter->next;
-		if (compare_types(ls->sort, *new, iter->next) == 1)
+		if (compare_types(ls->sort, *new, iter->next, ls) == 1)
 		{
 			iter->next = *new;
 			(*new)->next = next;
@@ -208,7 +294,7 @@ t_dir_list **list)
 
 	if (!(*list)->next || !(*list)->next->next)
 		return (sort_with_three(new, ls, list));
-	if (compare_types(ls->sort, *new, *list) == 1)
+	if (compare_types(ls->sort, *new, *list, ls) == 1)
 	{
 		(*new)->next = *list;
 		*list = *new;
@@ -218,9 +304,9 @@ t_dir_list **list)
 	current = prev->next;
 	next = current->next;
 	while (prev && current && next && compare_types(ls->sort, *new, \
-	current) == 0)
+	current, ls) == 0)
 		edit_if_one(&prev, &current, &next);
-	if (!next && compare_types(ls->sort, *new, current) == 0)
+	if (!next && compare_types(ls->sort, *new, current, ls) == 0)
 		current->next = *new;
 	else
 	{
@@ -240,11 +326,12 @@ t_ls *ls, char *path)
 	new = (t_dir_list *)ft_memalloc(sizeof(t_dir_list));
 	if (!new)
 		return (0);
+	new->next = NULL;
 	add_to_new_node(&new, path, d_s);
-	if (d_s->d_type != 10)
-		stat(new->path, &st);
-	else
+	if (d_s->d_type == 10)
 		lstat(new->path, &st);
+	else
+		stat(new->path, &st);
 	copy_stat_to_new(&st, &new);
 	new->permissions = ft_strdup("---------");
 	copy_permissions_to_new(&st, &new->permissions);

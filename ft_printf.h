@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/03/03 13:33:50 by kpereira       #+#    #+#                */
-/*   Updated: 2019/07/08 12:09:24 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/10 10:13:46 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@
 
 # include <stdarg.h>
 # include <stdlib.h>
-# include <stdio.h> // selihjzlshfdhgzdrhfflkzsuhlkuzhseflkfuhzselkfuhzselkfuhzkeufhzlkseufhzksuhfzklsueefhlzkssuhef (remove)
 # include "./libft/libft.h"
 
 /*
@@ -132,8 +131,10 @@ int					find_wildcard_in_string(char *str);
 char				*make_width_null(t_flags *data);
 void				clear_buf(char *buf);
 int					print_buf(char *buf, int *buffer_length);
-int					print_buf_nf(char *buf, int j, t_flags *data, int *buffer_length);
-int					put_on_buf(char *buf, t_flags *data, int *rtn, int len, int *buffer_length);
+int					print_buf_nf(char *buf, int j, t_flags *data, \
+int *buffer_length);
+int					put_on_buf(char *buf, t_flags *data, int *rtn, int len, \
+int *buffer_length);
 char				*ft_unsigned_long_long_itoa(unsigned long long int n);
 void				width_path_flags(t_flags *data, char *rtn);
 void				width_fzero_path(char *str, int width, char *rtn);

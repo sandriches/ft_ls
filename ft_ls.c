@@ -5,187 +5,135 @@
 /*                                                     +:+                    */
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/09/12 11:38:58 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/06 14:49:16 by sandRICH      ########   odam.nl         */
+/*   Created: 2019/10/03 16:49:30 by rcorke         #+#    #+#                */
+/*   Updated: 2019/10/10 16:29:23 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-static struct dirent	*get_ds(DIR *ptr)
+struct dirent	*get_ds_init_values(DIR *ptr, t_dir_list **current, t_ls *ls, \
+char *path)
 {
 	struct dirent *d_s;
 
+	*current = NULL;
+	if (!ptr)
+		return (NULL);
 	d_s = readdir(ptr);
+	if (!d_s)
+		return (NULL);
+	if (ls->a == 1)
+		add_to_dir_list(d_s, current, ls, path);
 	d_s = readdir(ptr);
+	if (ls->a == 1)
+		add_to_dir_list(d_s, current, ls, path);
 	d_s = readdir(ptr);
 	return (d_s);
 }
 
-static DIR	*get_next_ptr(t_dir_list *list)
+static int		print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 {
-	DIR		*ptr;
-
-	if (!list)
-		return (NULL);
-	ptr = opendir(list->path);
-	return (ptr);
-}
-
-
-static int		print_all_in_dirent(t_dir_list **list, DIR *ptr, char *path, t_ls *ls)
-{
-	static int j;
-	int i = 0;
-	int list_size = 0;
-	struct dirent	*d_s;
-	t_dir_list		*current;
-
-	ft_printf(BOLD_CYAN);
-	ft_printf("%s:\n\033[0m", path);
-	d_s = get_ds(ptr);
-	current = NULL;
-	if (!d_s)
-	{
-		ft_printf("\n");
-		return (0);
-	}
-	if (!list || !*list)
-		return (1);
-	while (d_s)
-	{
-		add_to_current(d_s, &current, path);
-		if (d_s->d_type == 4)
-		{
-			add_to_front_of_list(d_s, list, path, ls);
-			list_size++;
-		}
-		d_s = readdir(ptr);
-	}
-	print_current(ls, current);
-	free_current(current);
-	if (path)
-		free(path);
-	ft_printf("\n\n");
-	j++;
-	if (list_size == 0)
-		return (0);
-	while (list_size > 0)
-	{
-		closedir(ptr);
-		ptr = get_next_ptr(*list);
-		path = ft_strdup((*list)->path);
-		pop_first_list(list);
-		if (print_all_in_dirent(list, ptr, path, ls) == 1)
-			return (1);
-		list_size--;
-	}
-	return (1);
-}
-
-
-static int	print_all_in_dirent_no_path(t_dir_list **list, DIR *ptr, t_ls *ls)
-{
-	struct dirent	*d_s;
-	t_dir_list		*current;
+	struct dirent	*ds;
 	int				size;
+	t_dir_list		*current;
 
 	size = 0;
-	d_s = get_ds(ptr);
-	current = NULL;
-	if (!d_s)
+	ds = get_ds_init_values(dptr, &current, ls, ls->folder);
+	if (!ds && ls->a == 0)
 		return (0);
-	if (ls->head_folder == 1)
+	print_head_folder(ls);
+	while (ds)
 	{
-		ft_printf(BOLD_MAGENTA);
-		HERE;
-		ft_printf(COLOR_RESET);
+		if ((ls->a == 0 && ds->d_name[0] != '.') || ls->a == 1)
+			add_to_dir_list(ds, &current, ls, ls->folder);
+		if (ds->d_type == 4 && ((ls->a == 0 && ds->d_name[0] != \
+		'.') || ls->a == 1) && ls->R == 1)
+			size += add_to_dir_list(ds, list, ls, ls->folder);
+		ds = readdir(dptr);
 	}
-	while (d_s)
-	{
-		add_to_current(d_s, &current, ls->folder);
-		if (d_s->d_type == 4)
-		{
-			add_to_list(d_s, list, ls->folder, ls);
-			size++;
-		}
-		d_s = readdir(ptr);
-	}
-	print_current(ls, current);
-	free_current(current);
+	sort_print_free(ls, &current, &dptr);
 	ft_printf("\n");
 	return (size);
 }
 
-static void	ft_ls(t_ls *ls, char *folder)
+static void		print_single_file(struct stat st, t_ls *ls, char *path)
 {
-	struct passwd	*pw_struct;
-	struct group	*group_struct;
-	struct stat		*stat_struct;
-	struct dirent	*dirent_struct;
-	DIR				*ptr;
-	gid_t			group_id;
+	t_dir_list	*new;
 
-	t_dir_list		*list;
-	char			*path;
-	int				first_size;
+	if (ls->l == 1)
+	{
+		new = (t_dir_list *)ft_memalloc(sizeof(t_dir_list));
+		new->name = ft_strdup(path);
+		copy_stat_to_new(&st, &new);
+		new->permissions = ft_strdup("---------");
+		copy_permissions_to_new(&st, &new->permissions);
+		print_info(ls, new);
+		free_singular_node(&new);
+	}
+	else
+		ft_printf("%s", path);
+	NL;
+}
+
+static void		ft_ls(t_ls *ls, char *path)
+{
+	t_dir_list	*list;
+	DIR			*dptr;
+	int			folders_in_first_directory;
+	struct stat	st;
+	int			st_rtn;
 
 	list = NULL;
-	path = NULL;
-	ptr = opendir(folder);
-	if (!ptr)
-		return (no_folder_error(ls, folder));
-	ls->folder = folder;
-	first_size = print_all_in_dirent_no_path(&list, ptr, ls);
-	closedir(ptr);
-	ptr = get_next_ptr(list);
-	while (!ptr && list)
+	dptr = opendir(path);
+	st_rtn = lstat(path, &st);
+	if (!dptr && st_rtn == -1)
+		return (perror(path));
+	else if (!dptr)
+		return (print_single_file(st, ls, path));
+	ls->folder = path;
+	folders_in_first_directory = print_first_dirent(&list, dptr, ls);
+	while (ls->R == 1 && folders_in_first_directory > 0 && list)
 	{
-		NL;
-		no_folder_error(ls, list->path);
-		pop_first_list(&list);
-		ptr = get_next_ptr(list);
-	}
-	if (!list)
-		return ;
-	while (ls->R == 1 && first_size > 0)
-	{
-		print_all_in_dirent(&list, ptr, list->path, ls);
-		if (first_size == 1)
-			break ;
-		if (dir_list_size(list) > 0)
-			pop_first_list(&list);
+		dptr = opendir(list->path);
+		if (dptr)
+		{
+			print_dirent(&list, dptr, ls);
+			folders_in_first_directory--;
+		}
 		else
-			break ;
-		ptr = get_next_ptr(list);
-		path = ft_strdup(list->path);
-		first_size--;
+		{
+			no_folder_error(ls, list);
+			pop_first_list(&list);
+		}
 	}
 }
 
-int		main(int argc, char **argv)
+int				main(int argc, char **argv)
 {
-	int				start_files;
-	t_ls			*ls;
+	int		start_file;
+	t_ls	*ls;
 
-	ls = (t_ls *)malloc(sizeof(t_ls));
+	ls = (t_ls *)ft_memalloc(sizeof(t_ls));
+	if (!ls)
+		return (1);
 	ls->head_folder = 0;
 	ls->folder = NULL;
 	if (argc > 1)
 	{
-		start_files = set_flags(argc, argv, ls);
-		// ft_printf("START FILES: %d\tARGC: %d\n", start_files, argc);
-		if (start_files + 1 < argc)
+		start_file = set_flags(argc, argv, ls);
+		if (start_file + 1 < argc)
 			ls->head_folder = 1;
-		else if (start_files == argc)
-			ft_ls(ls, ft_strdup("."));
-		while (start_files < argc)
+		else if (start_file == argc)
+			ft_ls(ls, ".");
+		while (start_file < argc)
 		{
-			ft_ls(ls, ft_strdup(argv[start_files]));
-			start_files++;
+			ft_ls(ls, argv[start_file]);
+			start_file++;
 		}
 	}
 	else
-		ft_ls(ls, ft_strdup("."));
+		ft_ls(ls, ".");
+	free_everything(ls, NULL);
 	return (0);
 }

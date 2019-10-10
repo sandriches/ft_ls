@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/24 13:17:16 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/08 17:49:35 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/10 16:38:55 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,10 +97,10 @@ static void	print_color_code(t_ls *ls, t_dir_list *current)
 	}
 }
 
-static void	print_info(t_ls *ls, t_dir_list *current)
+void		print_info(t_ls *ls, t_dir_list *current)
 {
 	struct stat st;
-	char		buf[current->len_name];
+	char		buf[LINK_BUF];
 
 	stat(current->path, &st);
 	if (current->type == 10)
@@ -110,28 +110,26 @@ static void	print_info(t_ls *ls, t_dir_list *current)
 		ft_printf("%c%s %3d ", get_d_type(current), current->permissions, \
 		current->n_links);
 		print_owner_info(ls, current);
-		ft_printf("%15lu %s ", current->size, current->m_time_str, current->name);
+		ft_printf("%15lu %s ", current->size, current->m_time_str, \
+		current->name);
 	}
 	print_color_code(ls, current);
 	ft_printf("%s%s", current->name, FULL_COLOR_RESET);
 	if (current->type == 10)
 	{
-		readlink(current->path, buf, current->len_name);
+		ft_bzero(buf, LINK_BUF);
+		readlink(current->path, buf, LINK_BUF);
 		ft_printf(" -> %s", buf);
 	}
 	if (ls->p == 1 && current->type == 4)
 		ft_printf("/");
 }
 
-void		print_dir_list(t_ls *ls, t_dir_list *list)
+void		print_dir_list(t_ls *ls, t_dir_list **list)
 {
 	t_dir_list *iter;
 
-	if (list)
-		sort_list(ls, &list);
-	iter = list;
-	if (ls->head_folder == 1)
-		ft_printf("%s\n", iter->name);
+	iter = *list;
 	if (ls->l == 1)
 		print_total_blocks(iter);
 	while (iter)

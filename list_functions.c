@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:33:20 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/07 17:57:29 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/10 16:27:35 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,14 +59,12 @@ void			sort_print_free(t_ls *ls, t_dir_list **current, DIR **dptr)
 {
 	if (*current)
 	{
-		sort_list(ls, current);
-		if (*current)
-		{
-			print_dir_list(ls, *current);
-			free_current(current);
-		}
+		if ((*current)->next)
+		print_dir_list(ls, current);
+		free_current(current);
 	}
-	closedir(*dptr);
+	if (*dptr)
+		closedir(*dptr);
 }
 
 void			join_lists(t_dir_list **to_add, t_dir_list **main_list)

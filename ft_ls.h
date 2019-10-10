@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/23 10:31:53 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/08 11:29:40 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/10 16:18:37 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # define NL write(1, "\n", 1)
 # define TAB write(1, "\t", 1)
 # define FULL_COLOR_RESET "\033[0;0m"
+# define LINK_BUF 1024
 
 typedef struct	s_dir_list {
 	char					*path;
@@ -52,7 +53,7 @@ typedef struct	s_ls {
 	unsigned char	R;			//recursive
 	unsigned char	a;			//hidden
 	unsigned char	r;			//rev sort
-	unsigned char	sort;		//sort -t[mod time]		-u[access time]		-S[size]
+	unsigned char	sort;		//sort -t[mod time]	-u[access time]	-S[size]
 	unsigned char	n;			//uid & gid instead of u_name and g_name
 	unsigned char	p;			// '/' after directories
 	unsigned char	G;			//colors
@@ -61,11 +62,12 @@ typedef struct	s_ls {
 }				t_ls;
 
 void	temp_print_dir_list(t_dir_list *list);
-struct dirent	*get_ds_init_values(DIR *ptr, int *num, t_dir_list **list);
+struct dirent	*get_ds_init_values(DIR *ptr, t_dir_list **list, t_ls *ls, \
+char *path);
 int		print_dirent(t_dir_list **list, DIR *dptr, t_ls *ls);
 
-// void	print_info(t_ls *ls, struct dirent *d_s);
-void	print_dir_list(t_ls *ls, t_dir_list *list);
+void	print_info(t_ls *ls, t_dir_list *current);
+void	print_dir_list(t_ls *ls, t_dir_list **list);
 void	print_flags(t_ls *ls);
 
 /*Utility functions */
@@ -84,7 +86,10 @@ void	sort_list(t_ls *ls, t_dir_list **list);
 int		dir_list_size(t_dir_list *list);
 
 /*add_to_dir_list.c */
-int			add_to_dir_list(struct dirent *d_s, t_dir_list **current, t_ls *ls, char *path);
+int			add_to_dir_list(struct dirent *d_s, t_dir_list **current, \
+t_ls *ls, char *path);
+void		copy_stat_to_new(struct stat *st, t_dir_list **n_new);
+void		copy_permissions_to_new(struct stat *st, char **str);
 
 void	free_current(t_dir_list **list);
 void	free_everything(t_ls *ls, t_dir_list **list);
@@ -109,11 +114,6 @@ BONUS
 -p display '/' after name if it is a directory
 -G colour output
  */
-
-/* -l 
-file mode - number of links - owner name - group name - file size (bytes) - last modfied (Mon date hour:min) - path(name)
-*/
-
 
 /* STAT
 Returns information about file (PATH_TO_FILE), writes into the STAT *buff.

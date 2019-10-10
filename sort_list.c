@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:43:18 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/08 16:59:25 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/10 15:49:34 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ static t_dir_list	*remove_first_hidden(t_dir_list **list)
 	t_dir_list	*head;
 
 	iter = *list;
-	while (iter && iter->name[0] == '.')
+	while (iter && iter->name && iter->name[0] == '.')
 	{
 		to_free = iter;
 		iter = iter->next;
@@ -134,20 +134,21 @@ static void			remove_hidden(t_dir_list **list)
 	if (!*list)
 		return ;
 	iter = *list;
-	head = iter;
+	head = *list;
 	to_free = iter->next;
-	if (!to_free)
-		return ;
 	while (iter && to_free)
 	{
 		if (to_free->name[0] == '.')
 		{
 			iter->next = to_free->next;
 			free_singular_node(&to_free);
-		}
-		iter = iter->next;
-		if (to_free)
 			to_free = iter->next;
+		}
+		else
+		{
+			to_free = iter->next;
+			iter = to_free;
+		}
 	}
 	*list = head;
 }
@@ -205,18 +206,6 @@ void				sort_list(t_ls *ls, t_dir_list **list)
 {
 	if (!list || !*list || !(*list)->next)
 		return ;
-	if (ls->a == 0)
-	{
-		remove_hidden(list);
-		if (dir_list_size(*list) == 0)
-		{
-			*list = NULL;
-			return ;
-		}
-	}
-	if (ls->r == 1)
-	{
-		// HERE;
-		reverse_list(list);
-	}
+	// if (ls->r == 1)
+		// reverse_list(list);
 }
