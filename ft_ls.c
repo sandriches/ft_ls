@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 16:49:30 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/10 16:29:23 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 18:44:45 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ static int		print_first_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 		ds = readdir(dptr);
 	}
 	sort_print_free(ls, &current, &dptr);
+	merge_sort_list(ls, list);
 	ft_printf("\n");
 	return (size);
 }
@@ -76,6 +77,19 @@ static void		print_single_file(struct stat st, t_ls *ls, char *path)
 	NL;
 }
 
+static void		dptr_exists(DIR *dptr, t_dir_list **list, t_ls *ls, \
+int *folders)
+{
+	print_dirent(list, dptr, ls);
+	*folders -= 1;
+}
+
+static void		no_dptr(t_ls *ls, t_dir_list **list)
+{
+	no_folder_error(ls, *list);
+	pop_first_list(list);
+}
+
 static void		ft_ls(t_ls *ls, char *path)
 {
 	t_dir_list	*list;
@@ -97,15 +111,9 @@ static void		ft_ls(t_ls *ls, char *path)
 	{
 		dptr = opendir(list->path);
 		if (dptr)
-		{
-			print_dirent(&list, dptr, ls);
-			folders_in_first_directory--;
-		}
+			dptr_exists(dptr, &list, ls, &folders_in_first_directory);
 		else
-		{
-			no_folder_error(ls, list);
-			pop_first_list(&list);
-		}
+			no_dptr(ls, &list);
 	}
 }
 
@@ -134,6 +142,7 @@ int				main(int argc, char **argv)
 	}
 	else
 		ft_ls(ls, ".");
+	print_flags(ls);
 	free_everything(ls, NULL);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:33:20 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/10 16:27:35 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 13:34:28 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ void			sort_print_free(t_ls *ls, t_dir_list **current, DIR **dptr)
 	if (*current)
 	{
 		if ((*current)->next)
+			merge_sort_list(ls, current);
 		print_dir_list(ls, current);
 		free_current(current);
 	}

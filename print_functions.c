@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/24 13:17:16 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/10 16:38:55 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 18:29:12 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,20 @@ void		temp_print_dir_list(t_dir_list *list)
 	iter = list;
 	while (iter)
 	{
-		ft_printf("%s\tPATH: %s\n", iter->name, iter->path);
+		ft_printf("%s\n", iter->name);
 		iter = iter->next;
 	}
 }
 
 void		print_flags(t_ls *ls)
 {
-	ft_printf("l->%d\nR->%d\na->%d\nr->%d\nsort->%c\tn->%d\tp->%d\tG->%d\n", \
-	ls->l, ls->R, ls->a, ls->r, ls->sort, ls->n, ls->p, ls->G);
+	ft_printf("l->%d\nR->%d\na->%d\nr->%d\nt->%d\n", \
+	ls->l, ls->R, ls->a, ls->r, ls->t);
+	if (ls->sort == 0 || ls->sort == 1)
+		ft_printf("sort->%d\n", ls->sort);
+	else
+		ft_printf("sort->%c\n", ls->sort);
+	ft_printf("n->%d\np->%d\nG->%d\n", ls->n, ls->p, ls->G);
 }
 
 static char	get_d_type(t_dir_list *dir)
@@ -97,6 +102,18 @@ static void	print_color_code(t_ls *ls, t_dir_list *current)
 	}
 }
 
+void		print_long_info(t_ls *ls, t_dir_list *current)
+{
+	ft_printf("%c%s %3d ", get_d_type(current), current->permissions, \
+	current->n_links);
+	print_owner_info(ls, current);
+	ft_printf("%15lu", current->size, current->m_time_str);
+	if (ls->sort == 'u' || ls->sort == 'U')
+		ft_printf(" %s ", current->a_time_str);
+	else
+		ft_printf(" %s ", current->m_time_str);
+}
+
 void		print_info(t_ls *ls, t_dir_list *current)
 {
 	struct stat st;
@@ -106,13 +123,7 @@ void		print_info(t_ls *ls, t_dir_list *current)
 	if (current->type == 10)
 		lstat(current->path, &st);
 	if (ls->l == 1)
-	{
-		ft_printf("%c%s %3d ", get_d_type(current), current->permissions, \
-		current->n_links);
-		print_owner_info(ls, current);
-		ft_printf("%15lu %s ", current->size, current->m_time_str, \
-		current->name);
-	}
+		print_long_info(ls, current);
 	print_color_code(ls, current);
 	ft_printf("%s%s", current->name, FULL_COLOR_RESET);
 	if (current->type == 10)

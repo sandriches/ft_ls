@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/04 12:13:11 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/10 16:00:15 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 14:36:03 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ int			print_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 	}
 	free_str(&path);
 	sort_print_free(ls, &current, &dptr);
+	merge_sort_list(ls, &new_list);
 	join_lists(&new_list, list);
 	print_loop(list, dptr, ls, list_size);
 	return (1);

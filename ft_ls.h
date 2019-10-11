@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/23 10:31:53 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/10 16:18:37 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 18:30:07 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ typedef struct	s_dir_list {
 	time_t					a_time;
 	time_t					m_time;
 	char					*m_time_str;
+	char					*a_time_str;
 	unsigned long			size;
 	unsigned long			blocks;
 	char					*name;
@@ -48,11 +49,13 @@ typedef struct	s_dir_list {
 	struct s_dir_list		*next;
 }				t_dir_list;
 
+
 typedef struct	s_ls {
 	unsigned char	l;			//list
 	unsigned char	R;			//recursive
 	unsigned char	a;			//hidden
 	unsigned char	r;			//rev sort
+	unsigned char	t;			//sort by time
 	unsigned char	sort;		//sort -t[mod time]	-u[access time]	-S[size]
 	unsigned char	n;			//uid & gid instead of u_name and g_name
 	unsigned char	p;			// '/' after directories
@@ -82,7 +85,6 @@ void			sort_print_free(t_ls *ls, t_dir_list **current, DIR **dptr);
 void			join_lists(t_dir_list **to_add, t_dir_list **main_list);
 
 /*list functions 2 */
-void	sort_list(t_ls *ls, t_dir_list **list);
 int		dir_list_size(t_dir_list *list);
 
 /*add_to_dir_list.c */
@@ -99,6 +101,10 @@ int		free_str(char **str);
 int		set_flags(int argc, char **argv, t_ls *ls);
 void	no_folder_error(t_ls *ls, t_dir_list *list);
 
+
+/*merge sort */
+void	merge_sort_list(t_ls *ls, t_dir_list **list);
+
 #endif
 
 /*
@@ -108,7 +114,7 @@ void	no_folder_error(t_ls *ls, t_dir_list *list);
 -r reverse output
 -t sort by mod time
 BONUS
--u sort by access time
+-u sort by access time |-U[SORT BY AND SHOW] | -u[SHOW ACCESS, SORT BY NAME] |
 -S sort by size
 -n display uid and gid instead of user name and group name (turns on -l)
 -p display '/' after name if it is a directory

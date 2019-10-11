@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/03 17:12:36 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 18:35:15 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,6 @@ void			print_head_folder(t_ls *ls)
 		ft_printf("%s:\n", ls->folder);
 		ft_printf(COLOR_RESET);
 	}
-}
-
-struct stat		*get_stat(char *path)
-{
-	struct stat		*ptr;
-	struct stat		new;
-
-	stat(path, &new);
-	*ptr = new;
-	return (ptr);
 }
 
 struct dirent	*copy_ds(struct dirent *d_s)

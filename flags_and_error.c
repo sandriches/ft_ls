@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/26 16:45:56 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/10 14:46:19 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 18:21:39 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ static void	flags_error(t_ls *ls, char c)
 static void	check_for_flags_cont(t_ls *ls, char chr)
 {
 	if (chr == 't')
-		ls->sort = 't';
-	else if (chr == 'u')
+		ls->t = 1;
+	if (chr == 'u' && ls->sort != 'S')
 		ls->sort = 'u';
 	else if (chr == 'S')
 		ls->sort = 'S';
@@ -72,6 +72,18 @@ static void	check_for_flags(t_ls *ls, char *str)
 	}
 }
 
+static int	update_flags_final(t_ls *ls, int x)
+{
+	if (ls->t == 1 && ls->sort == 'u')
+	{
+		ls->sort = 'U';
+		ls->t = 0;
+	}
+	else if (ls->sort == 'S')
+		ls->t = 0;
+	return (x);
+}
+
 int			set_flags(int argc, char **argv, t_ls *ls)
 {
 	int x;
@@ -85,13 +97,14 @@ int			set_flags(int argc, char **argv, t_ls *ls)
 	ls->n = 0;
 	ls->p = 0;
 	ls->G = 0;
+	ls->t = 0;
 	while (x <= argc)
 	{
 		if (argv[x] && argv[x][0] == '-')
 			check_for_flags(ls, argv[x]);
 		else
-			return (x);
+			return (update_flags_final(ls, x));
 		x++;
 	}
-	return (x);
+	return (update_flags_final(ls, x));
 }

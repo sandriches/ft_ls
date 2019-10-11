@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/03 15:52:12 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/10 18:03:05 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/11 18:32:20 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ static char	*remove_excess(char *str)
 
 static int	is_more_than_year_old(char *str)
 {
-	int 	x;
-	int 	len;
+	int		x;
+	int		len;
 	char	*year;
 
 	x = ft_strlen(str) - 2;
@@ -94,7 +94,7 @@ static char	*get_year_str(char *str)
 	return (rtn_str);
 }
 
-static char	*get_rel_time(struct stat *st)
+static char	*get_rel_time(time_t st_time)
 {
 	time_t		time_val;
 	time_t		difference;
@@ -102,12 +102,12 @@ static char	*get_rel_time(struct stat *st)
 	char		*time_str;
 
 	time_val = time(&time_val);
-	difference = (time_t)(difftime(time_val, st->st_mtimespec.tv_sec));
+	difference = (time_t)(difftime(time_val, st_time));
 	time_str = ctime(&difference);
 	if (is_more_than_year_old(time_str) == 0)
-		rtn_str = remove_excess(ctime(&(st->st_mtimespec.tv_sec)));
+		rtn_str = remove_excess(ctime(&st_time));
 	else
-		rtn_str = get_year_str(ctime(&st->st_mtimespec.tv_sec));
+		rtn_str = get_year_str(ctime(&st_time));
 	return (rtn_str);
 }
 
@@ -128,7 +128,8 @@ void		copy_stat_to_new(struct stat *st, t_dir_list **new)
 		(*new)->g_name = ft_strdup(ft_itoa(st->st_gid));
 	else
 		(*new)->g_name = ft_strdup(gp->gr_name);
-	(*new)->m_time_str = get_rel_time(st);
+	(*new)->m_time_str = get_rel_time(st->st_mtimespec.tv_sec);
+	(*new)->a_time_str = get_rel_time(st->st_atimespec.tv_sec);
 	(*new)->uid = st->st_uid;
 	(*new)->gid = st->st_gid;
 	(*new)->blocks = st->st_blocks;
@@ -199,122 +200,6 @@ static void	add_to_new_node(t_dir_list **new, char *path, struct dirent *ds)
 	(*new)->next = NULL;
 }
 
-static int	compare_types_rev(char sort, t_dir_list *new, t_dir_list *iter)
-{
-	if (sort == 0)
-	{
-		if (ft_biggest_ascii_str(new->name, iter->name) == 1)
-			return (1);
-	}
-	else if (sort == 't')
-	{
-		if (new->m_time < iter->m_time)
-			return (1);
-	}
-	else if (sort == 'u')
-	{
-		if (new->a_time < iter->a_time)
-			return (1);
-	}
-	else if (sort == 'S')
-		if (new->size < iter->size)
-			return (1);
-	return (0);
-}
-
-static int	compare_types(char sort, t_dir_list *new, t_dir_list *iter, \
-t_ls *ls)
-{
-	if (ls->r == 0)
-	{
-		if (sort == 0)
-		{
-			if (ft_biggest_ascii_str(new->name, iter->name) == 2)
-				return (1);
-		}
-		else if (sort == 't')
-		{
-			if (new->m_time > iter->m_time)
-				return (1);
-		}
-		else if (sort == 'u')
-		{
-			if (new->a_time > iter->a_time)
-				return (1);
-		}
-		else if (sort == 'S')
-			if (new->size > iter->size)
-				return (1);
-	}
-	else if (ls->r == 1)
-		return (compare_types_rev(sort, new, iter));
-	return (0);
-}
-
-static void	sort_with_three(t_dir_list **new, t_ls *ls, t_dir_list **list)
-{
-	t_dir_list	*iter;
-	t_dir_list	*next;
-
-	iter = *list;
-	if (compare_types(ls->sort, *new, iter, ls) == 1)
-	{
-		(*new)->next = *list;
-		*list = *new;
-	}
-	else if (!iter->next)
-		(*list)->next = *new;
-	else
-	{
-		next = iter->next;
-		if (compare_types(ls->sort, *new, iter->next, ls) == 1)
-		{
-			iter->next = *new;
-			(*new)->next = next;
-		}
-		else
-			next->next = *new;
-	}
-}
-
-static void	edit_if_one(t_dir_list **prev, t_dir_list **current, \
-t_dir_list **next)
-{
-	*prev = *current;
-	*current = *next;
-	*next = (*next)->next;
-}
-
-static void	add_to_correct_position(t_dir_list **new, t_ls *ls, \
-t_dir_list **list)
-{
-	t_dir_list	*prev;
-	t_dir_list	*current;
-	t_dir_list	*next;
-
-	if (!(*list)->next || !(*list)->next->next)
-		return (sort_with_three(new, ls, list));
-	if (compare_types(ls->sort, *new, *list, ls) == 1)
-	{
-		(*new)->next = *list;
-		*list = *new;
-		return ;
-	}
-	prev = *list;
-	current = prev->next;
-	next = current->next;
-	while (prev && current && next && compare_types(ls->sort, *new, \
-	current, ls) == 0)
-		edit_if_one(&prev, &current, &next);
-	if (!next && compare_types(ls->sort, *new, current, ls) == 0)
-		current->next = *new;
-	else
-	{
-		prev->next = *new;
-		(*new)->next = current;
-	}
-}
-
 int			add_to_dir_list(struct dirent *d_s, t_dir_list **current, \
 t_ls *ls, char *path)
 {
@@ -335,9 +220,8 @@ t_ls *ls, char *path)
 	copy_stat_to_new(&st, &new);
 	new->permissions = ft_strdup("---------");
 	copy_permissions_to_new(&st, &new->permissions);
-	if (!*current)
-		*current = new;
-	else
-		add_to_correct_position(&new, ls, current);
+	if (*current)
+		new->next = *current;
+	*current = new;
 	return (1);
 }

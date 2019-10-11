@@ -6,7 +6,7 @@
 #    By: rcorke <rcorke@student.codam.nl>             +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/09/23 10:33:18 by rcorke         #+#    #+#                 #
-#    Updated: 2019/10/10 15:59:37 by rcorke        ########   odam.nl          #
+#    Updated: 2019/10/11 13:32:49 by rcorke        ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,8 @@ NAME=ft_ls
 FLAGS= -Wall -Werror -Wextra
 
 SRCS= ft_ls.c print_functions.c utility_functions.c free_functions.c \
-flags_and_error.c add_to_dir_list.c list_functions.c print_dirent.c
+flags_and_error.c add_to_dir_list.c list_functions.c print_dirent.c \
+merge_sort_list.c
 
 OBJECTS:=${SRCS:c=o}
 
