@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/26 16:45:56 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/13 15:34:48 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/16 15:57:59 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,17 @@ void		no_folder_error(t_dir_list *list)
 	ft_putstr_fd("\n", 2);
 }
 
-static void	flags_error(t_ls *ls, char c)
+static void	flags_error(t_ls *ls, char c, char help)
 {
-	ft_putstr_fd("ft_ls: illegal option -- ", 2);
-	write(2, &c, 1);
-	ft_putstr_fd("\nusage: ./ft_ls [-lRartuSnpG] [file ...]\n", 2);
+	if (help == 0)
+	{
+		ft_putstr_fd("ft_ls: illegal option -- ", 2);
+		write(2, &c, 1);
+		ft_putstr_fd("\n", 2);
+		ft_putstr_fd("usage: ./ft_ls [-lRartuSnpG] [file ...]\n", 2);
+	}
+	else
+		ft_putstr("usage: ./ft_ls [-lRartuSnpG] [file ...]\n");
 	free_everything(ls, NULL);
 	exit(0);
 }
@@ -42,6 +48,8 @@ static void	check_for_flags_cont(t_ls *ls, char chr)
 		ls->n = 1;
 		ls->l = 1;
 	}
+	else if (chr == 'h')
+		flags_error(ls, 'h', 1);
 }
 
 static void	check_for_flags(t_ls *ls, char *str)
@@ -60,14 +68,14 @@ static void	check_for_flags(t_ls *ls, char *str)
 		else if (str[x] == 'r')
 			ls->r = 1;
 		else if (str[x] == 't' || str[x] == 'u' || str[x] == 'S' || \
-		str[x] == 'n')
+		str[x] == 'n' || str[x] == 'h')
 			check_for_flags_cont(ls, str[x]);
 		else if (str[x] == 'p')
 			ls->p = 1;
 		else if (str[x] == 'G')
 			ls->g = 1;
 		else
-			flags_error(ls, str[x]);
+			flags_error(ls, str[x], 0);
 		x++;
 	}
 }
