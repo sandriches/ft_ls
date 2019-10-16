@@ -1,36 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   utility_functions.c                                :+:    :+:            */
+/*   find_wildcard_in_string.c                          :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/13 15:35:19 by rcorke        ########   odam.nl         */
+/*   Created: 2019/04/27 12:48:08 by rcorke         #+#    #+#                */
+/*   Updated: 2019/04/29 14:11:50 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "ft_printf.h"
 
-void			print_head_folder(t_ls *ls)
+int		find_wildcard_in_string(char *str)
 {
-	if (ls && ls->head_folder == 1)
-	{
-		if (ls->g == 1)
-			ft_printf(BOLD_BLUE);
-		ft_printf("%s:\n", ls->folder);
-		ft_printf(COLOR_RESET);
-	}
-}
+	int x;
 
-int				update_flags_final(t_ls *ls, int x)
-{
-	if (ls->t == 1 && ls->sort == 'u')
+	x = 0;
+	while (ft_strchr("1234567890*", str[x]))
 	{
-		ls->sort = 'U';
-		ls->t = 0;
+		if (str[x] == '*')
+			return (x);
+		x++;
 	}
-	else if (ls->sort == 'S')
-		ls->t = 0;
-	return (x);
+	return (-1);
 }

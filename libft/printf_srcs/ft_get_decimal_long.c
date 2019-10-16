@@ -1,36 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   utility_functions.c                                :+:    :+:            */
+/*   ft_get_decimal_long.c                              :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/13 15:35:19 by rcorke        ########   odam.nl         */
+/*   Created: 2019/02/23 17:27:08 by rcorke         #+#    #+#                */
+/*   Updated: 2019/04/30 16:48:51 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "ft_printf.h"
 
-void			print_head_folder(t_ls *ls)
+static int		find_base(char c)
 {
-	if (ls && ls->head_folder == 1)
-	{
-		if (ls->g == 1)
-			ft_printf(BOLD_BLUE);
-		ft_printf("%s:\n", ls->folder);
-		ft_printf(COLOR_RESET);
-	}
+	if (c >= '0' && c <= '9')
+		return ((int)c - '0');
+	else
+		return ((int)c - 'A' + 10);
 }
 
-int				update_flags_final(t_ls *ls, int x)
+long long		ft_get_decimal_long(char *str, int base)
 {
-	if (ls->t == 1 && ls->sort == 'u')
+	long long	result;
+	long long	power;
+	int			x;
+
+	x = ft_strlen(str) - 1;
+	result = 0;
+	power = 1;
+	while (x >= 0)
 	{
-		ls->sort = 'U';
-		ls->t = 0;
+		result = result + find_base(str[x]) * power;
+		power = power * base;
+		x--;
 	}
-	else if (ls->sort == 'S')
-		ls->t = 0;
-	return (x);
+	return (result);
 }

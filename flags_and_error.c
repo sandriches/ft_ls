@@ -6,13 +6,13 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/26 16:45:56 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/11 18:21:39 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/13 15:34:48 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-void		no_folder_error(t_ls *ls, t_dir_list *list)
+void		no_folder_error(t_dir_list *list)
 {
 	ft_putstr_fd(list->path, 2);
 	ft_putstr_fd(":\nft_ls: ", 2);
@@ -54,7 +54,7 @@ static void	check_for_flags(t_ls *ls, char *str)
 		if (str[x] == 'l')
 			ls->l = 1;
 		else if (str[x] == 'R')
-			ls->R = 1;
+			ls->rc = 1;
 		else if (str[x] == 'a')
 			ls->a = 1;
 		else if (str[x] == 'r')
@@ -65,23 +65,11 @@ static void	check_for_flags(t_ls *ls, char *str)
 		else if (str[x] == 'p')
 			ls->p = 1;
 		else if (str[x] == 'G')
-			ls->G = 1;
+			ls->g = 1;
 		else
 			flags_error(ls, str[x]);
 		x++;
 	}
-}
-
-static int	update_flags_final(t_ls *ls, int x)
-{
-	if (ls->t == 1 && ls->sort == 'u')
-	{
-		ls->sort = 'U';
-		ls->t = 0;
-	}
-	else if (ls->sort == 'S')
-		ls->t = 0;
-	return (x);
 }
 
 int			set_flags(int argc, char **argv, t_ls *ls)
@@ -90,13 +78,13 @@ int			set_flags(int argc, char **argv, t_ls *ls)
 
 	x = 1;
 	ls->l = 0;
-	ls->R = 0;
+	ls->rc = 0;
 	ls->a = 0;
 	ls->r = 0;
 	ls->sort = 0;
 	ls->n = 0;
 	ls->p = 0;
-	ls->G = 0;
+	ls->g = 0;
 	ls->t = 0;
 	while (x <= argc)
 	{

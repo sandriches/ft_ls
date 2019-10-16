@@ -1,36 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   utility_functions.c                                :+:    :+:            */
+/*   ft_get_flags.c                                     :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/13 15:35:19 by rcorke        ########   odam.nl         */
+/*   Created: 2019/04/09 18:26:44 by rcorke         #+#    #+#                */
+/*   Updated: 2019/04/30 16:47:40 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "ft_printf.h"
 
-void			print_head_folder(t_ls *ls)
+t_flags		*ft_get_flags(char *str)
 {
-	if (ls && ls->head_folder == 1)
-	{
-		if (ls->g == 1)
-			ft_printf(BOLD_BLUE);
-		ft_printf("%s:\n", ls->folder);
-		ft_printf(COLOR_RESET);
-	}
-}
+	unsigned char	flags;
+	size_t			x;
 
-int				update_flags_final(t_ls *ls, int x)
-{
-	if (ls->t == 1 && ls->sort == 'u')
+	flags = 0;
+	x = 0;
+	while (str[x] != '\0')
 	{
-		ls->sort = 'U';
-		ls->t = 0;
+		if (str[x] == '#')
+			return (0);
 	}
-	else if (ls->sort == 'S')
-		ls->t = 0;
-	return (x);
+	return (0);
 }

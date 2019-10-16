@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/10/04 12:13:11 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/11 14:36:03 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/13 15:35:31 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static void	print_path(t_ls *ls, char *path)
 {
-	if (ls->G == 1)
+	if (ls->g == 1)
 		ft_printf(BOLD_CYAN);
 	ft_printf("%s:\n", path);
 	ft_printf(COLOR_RESET);
@@ -45,7 +45,7 @@ static void	print_loop(t_dir_list **list, DIR *dptr, t_ls *ls, int list_size)
 		}
 		else
 		{
-			no_folder_error(ls, *list);
+			no_folder_error(*list);
 			pop_first_list(list);
 		}
 		list_size--;
@@ -55,6 +55,7 @@ static void	print_loop(t_dir_list **list, DIR *dptr, t_ls *ls, int list_size)
 static int	no_ds(DIR *dptr, char *path)
 {
 	closedir(dptr);
+	NL;
 	return (free_str(&path));
 }
 
@@ -73,10 +74,10 @@ int			print_dirent(t_dir_list **list, DIR *dptr, t_ls *ls)
 	while (ds)
 	{
 		if ((ls->a == 0 && ds->d_name[0] != '.') || ls->a == 1)
-			add_to_dir_list(ds, &current, ls, path);
+			add_to_dir_list(ds, &current, path);
 		if (ds->d_type == 4 && ((ls->a == 0 && \
 		ds->d_name[0] != '.') || ls->a == 1))
-			list_size += add_to_dir_list(ds, &new_list, ls, path);
+			list_size += add_to_dir_list(ds, &new_list, path);
 		ds = readdir(dptr);
 	}
 	free_str(&path);

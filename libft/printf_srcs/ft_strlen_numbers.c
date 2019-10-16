@@ -1,36 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   utility_functions.c                                :+:    :+:            */
+/*   ft_strlen_numbers.c                                :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/13 15:35:19 by rcorke        ########   odam.nl         */
+/*   Created: 2019/04/12 13:47:07 by rcorke         #+#    #+#                */
+/*   Updated: 2019/04/30 16:50:56 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "ft_printf.h"
 
-void			print_head_folder(t_ls *ls)
+int	ft_strlen_hex_numbers(char *str)
 {
-	if (ls && ls->head_folder == 1)
+	int x;
+	int rtnvalue;
+
+	rtnvalue = 0;
+	x = 0;
+	while (str[x] != '\0')
 	{
-		if (ls->g == 1)
-			ft_printf(BOLD_BLUE);
-		ft_printf("%s:\n", ls->folder);
-		ft_printf(COLOR_RESET);
+		if (ft_strchr(HEXSTRING, str[x]))
+			rtnvalue++;
+		x++;
 	}
+	return (rtnvalue);
 }
 
-int				update_flags_final(t_ls *ls, int x)
+int	ft_strlen_numbers(char *str)
 {
-	if (ls->t == 1 && ls->sort == 'u')
+	int x;
+	int rtnvalue;
+
+	rtnvalue = 0;
+	x = 0;
+	while (str[x] != '\0')
 	{
-		ls->sort = 'U';
-		ls->t = 0;
+		if (str[x] <= '9' && str[x] >= '0')
+			rtnvalue++;
+		x++;
 	}
-	else if (ls->sort == 'S')
-		ls->t = 0;
-	return (x);
+	return (rtnvalue);
 }

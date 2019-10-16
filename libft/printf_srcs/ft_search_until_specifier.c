@@ -1,36 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   utility_functions.c                                :+:    :+:            */
+/*   ft_search_until_specifier.c                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/13 15:35:19 by rcorke        ########   odam.nl         */
+/*   Created: 2019/04/26 17:23:26 by rcorke         #+#    #+#                */
+/*   Updated: 2019/05/03 20:45:53 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "ft_printf.h"
 
-void			print_head_folder(t_ls *ls)
+int		ft_search_until_specifier(char *str, t_flags *data)
 {
-	if (ls && ls->head_folder == 1)
-	{
-		if (ls->g == 1)
-			ft_printf(BOLD_BLUE);
-		ft_printf("%s:\n", ls->folder);
-		ft_printf(COLOR_RESET);
-	}
-}
+	char	terminating_char;
+	int		i;
 
-int				update_flags_final(t_ls *ls, int x)
-{
-	if (ls->t == 1 && ls->sort == 'u')
-	{
-		ls->sort = 'U';
-		ls->t = 0;
-	}
-	else if (ls->sort == 'S')
-		ls->t = 0;
-	return (x);
+	if (!data->specifier)
+		return (0);
+	terminating_char = data->specifier;
+	i = 0;
+	if (str[0] == '%')
+		i++;
+	while (str[i] && str[i] != terminating_char)
+		i++;
+	return (i);
 }

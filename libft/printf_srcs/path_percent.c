@@ -1,36 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   utility_functions.c                                :+:    :+:            */
+/*   path_percent.c                                     :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/09/24 14:58:13 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/13 15:35:19 by rcorke        ########   odam.nl         */
+/*   Created: 2019/04/10 19:21:01 by rcorke         #+#    #+#                */
+/*   Updated: 2019/04/30 15:25:47 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "ft_printf.h"
 
-void			print_head_folder(t_ls *ls)
+void		percent_path(t_flags *data)
 {
-	if (ls && ls->head_folder == 1)
-	{
-		if (ls->g == 1)
-			ft_printf(BOLD_BLUE);
-		ft_printf("%s:\n", ls->folder);
-		ft_printf(COLOR_RESET);
-	}
-}
-
-int				update_flags_final(t_ls *ls, int x)
-{
-	if (ls->t == 1 && ls->sort == 'u')
-	{
-		ls->sort = 'U';
-		ls->t = 0;
-	}
-	else if (ls->sort == 'S')
-		ls->t = 0;
-	return (x);
+	data->result = (char *)malloc(sizeof(char) * 2);
+	data->result[0] = '%';
+	data->result[1] = '\0';
+	data->result = make_width(data);
 }

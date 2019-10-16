@@ -6,7 +6,7 @@
 /*   By: rcorke <rcorke@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/09/28 13:33:20 by rcorke         #+#    #+#                */
-/*   Updated: 2019/10/11 13:34:28 by rcorke        ########   odam.nl         */
+/*   Updated: 2019/10/13 15:09:12 by rcorke        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,18 +40,6 @@ void			pop_first_list(t_dir_list **list)
 		return ;
 	to_free = *list;
 	*list = (*list)->next;
-	free_singular_node(&to_free);
-}
-
-void			pop_last_list(t_dir_list **list)
-{
-	t_dir_list	*to_free;
-
-	if (!list || !*list)
-		return ;
-	to_free = *list;
-	while (to_free && to_free->next)
-		to_free = to_free->next;
 	free_singular_node(&to_free);
 }
 
